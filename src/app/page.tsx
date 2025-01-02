@@ -1,12 +1,13 @@
 'use client'
 
-import {ChangeEvent, memo, useCallback, useEffect, useRef, useState} from "react";
+import {memo, useEffect, useRef} from "react";
 import {useAtomValue, useSetAtom} from "jotai";
 import {jsonAtom} from "@/components/pages/main/atoms";
 import {JSONData, User} from "@/models/User";
 import {debounce} from "next/dist/server/utils";
+import {FilePicker} from "@/components/pages/main/FilePicker";
 
-function convertArrayToObject(array: User[]): JSONData {
+export function convertArrayToObject(array: User[]): JSONData {
     const ids: number[] = [];
     const data: JSONData["data"] = {};
 
@@ -19,54 +20,11 @@ function convertArrayToObject(array: User[]): JSONData {
     return {ids, data};
 }
 
-function FilePicker() {
-    const setJSONData = useSetAtom(jsonAtom);
-    const [isLoading, setIsLoading] = useState<boolean>()
-    const fileProcessor = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-        setIsLoading(true);
-        const file = event.target?.files?.[0]; // Get the selected file
-        if (!file) {
-            alert('No file selected!');
-            return;
-        }
-
-        const reader = new FileReader(); // Create a FileReader instance
-
-        // Define the onload event to parse and display the JSON
-        reader.onload = function (e: ProgressEvent<FileReader>) {
-            try {
-                if (e.target?.result && typeof e.target?.result === 'string') {
-                    const json = JSON.parse(e.target.result); // Parse JSON content
-                    const data = convertArrayToObject(json)
-                    setJSONData(data)
-                }
-            } catch (error: unknown) {
-                if (error instanceof Error) {
-                    console.log('Invalid JSON file!', error.message);
-                }
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        reader.onerror = () => {
-            setIsLoading(false);
-        }
-
-        reader.readAsText(file);
-
-    }, [setJSONData]);
-
-    return <div>
-        {isLoading && "Loading..."}
-        <input type="file" onChange={fileProcessor} accept={"application/json"}/>
-    </div>
-}
-
 const JSONDataRenderer = memo(function JSONDataRenderer({data, el}: { data: User, el: number }) {
-    console.log("rerenders");
     const inputRef = useRef<HTMLInputElement>(null);
     const setJSONData = useSetAtom(jsonAtom);
+
+    console.log("rerenders");
     useEffect(() => {
         const inputElement = inputRef.current;
         if (inputElement) {
@@ -106,6 +64,7 @@ const JSONDataRenderer = memo(function JSONDataRenderer({data, el}: { data: User
 
 function JSONArrayRenderer() {
     const jsonData = useAtomValue(jsonAtom)
+    // const nameAtom = selectAtom(jsonAtom, (users) => users.ids)
     return <div className={"flex flex-col gap-4 max-w-[320px]"}>{jsonData?.ids.map(el => {
         return <JSONDataRenderer key={el} data={jsonData?.data[el]} el={el}/>
     })}</div>
@@ -116,12 +75,13 @@ export default function Home() {
 
     return (
         <div className="">
-            <button onClick={() => {
+            <button className={"bg-blue-300 p-4"} onClick={() => {
                 console.log(jsonData);
             }}>download modified json
             </button>
             <FilePicker/>
-            <JSONArrayRenderer/>
+            <div id={"output"}></div>
+            {/*<JSONArrayRenderer/>*/}
         </div>
     );
 }
