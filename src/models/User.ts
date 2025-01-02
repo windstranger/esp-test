@@ -1,4 +1,4 @@
-export type JSONData = { data: { [key: number]: User }, ids: number[] }
+export type JSONData = { data?: { [key: number]: User }, ids?: number[] }
 export type User = {
     _id: string; // ObjectId as a string
     index: number; // Sequential index

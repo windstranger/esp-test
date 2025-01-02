@@ -1,6 +1,8 @@
 import {useSetAtom} from "jotai/index";
-import {jsonAtom} from "@/components/pages/main/atoms";
+import {jsonArrayAtom, jsonAtom} from "@/components/pages/main/atoms";
 import {ChangeEvent, useCallback, useState} from "react";
+import {JSONData} from "@/models/User";
+import {convertArrayToObject} from "@/services/arrayObjectConverter";
 
 type JsonObject = { [key: string]: any };
 
@@ -36,7 +38,7 @@ function extractJsonObjects(buffer: string): { remainingBuffer: string; objects:
     return {remainingBuffer, objects};
 }
 
-export async function processLargeJsonFile(file: File): Promise<void> {
+export async function processLargeJsonFile(file: File) {
     const reader = file.stream().getReader();
     const decoder = new TextDecoder('utf-8');
     let buffer = ''; // Buffer for incomplete JSON data
@@ -81,8 +83,36 @@ export async function processLargeJsonFile(file: File): Promise<void> {
     console.log('File processing complete!');
 }
 
+function simpleFileReader(file: File) {
+    return new Promise<JSONData>((resolve, reject) => {
+        const reader = new FileReader(); // Create a FileReader instance
+
+        // Define the onload event to parse and display the JSON
+        reader.onload = function (e: ProgressEvent<FileReader>) {
+            try {
+                if (e.target?.result && typeof e.target?.result === 'string') {
+                    const json = JSON.parse(e.target.result); // Parse JSON content
+                    const data = convertArrayToObject(json)
+                    resolve(data)
+                }
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    reject('Invalid JSON file! ' + error.message)
+                }
+            }
+        };
+
+        reader.onerror = () => {
+            reject("cant read file");
+        }
+
+        reader.readAsText(file);
+    })
+}
+
 export function FilePicker() {
     const setJSONData = useSetAtom(jsonAtom);
+    const setJSONArray = useSetAtom(jsonArrayAtom);
     const [isLoading, setIsLoading] = useState<boolean>()
     const fileProcessor = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
         setIsLoading(true);
@@ -91,33 +121,15 @@ export function FilePicker() {
             alert('No file selected!');
             return;
         }
-
-        await processLargeJsonFile(file);
-
-        // const reader = new FileReader(); // Create a FileReader instance
-        //
-        // // Define the onload event to parse and display the JSON
-        // reader.onload = function (e: ProgressEvent<FileReader>) {
-        //     try {
-        //         if (e.target?.result && typeof e.target?.result === 'string') {
-        //             const json = JSON.parse(e.target.result); // Parse JSON content
-        //             const data = convertArrayToObject(json)
-        //             setJSONData(data)
-        //         }
-        //     } catch (error: unknown) {
-        //         if (error instanceof Error) {
-        //             console.log('Invalid JSON file!', error.message);
-        //         }
-        //     } finally {
-        //         setIsLoading(false);
-        //     }
-        // };
-        //
-        // reader.onerror = () => {
-        //     setIsLoading(false);
-        // }
-        //
-        // reader.readAsText(file);
+        try{
+            const res = await simpleFileReader(file);
+            setJSONData(res.data)
+            setJSONArray(res.ids)
+            // await processLargeJsonFile(file);
+            // console.log(res);
+        }finally {
+            setIsLoading(false)
+        }
 
     }, [setJSONData]);
 

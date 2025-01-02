@@ -1,4 +1,6 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import {useAtomValue} from "jotai/index";
+import {jsonArrayAtom} from "@/components/pages/main/atoms";
 
 const arr = new Array(10000).fill(0).map((_, i) => i);
 const amountOfElementsToRender = 20
@@ -18,9 +20,9 @@ function isElementPartiallyInViewport(element: HTMLElement): boolean {
 export const LazyRender = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [renderedIndex, setRenderedIndex] = useState<number>(0);
-    console.log(containerRef?.current?.clientHeight)
+    const jsonIds = useAtomValue(jsonArrayAtom)
+
     const arrToRender = useMemo(() => {
-        console.log(renderedIndex);
         if (renderedIndex > chunksToRender) {
             return [...arr.slice((renderedIndex - 3) * amountOfElementsToRender, renderedIndex * amountOfElementsToRender + amountOfElementsToRender)]
         }
