@@ -9,7 +9,7 @@ export const MainPage = () => {
             <PageControls/>
             <div id={"output"}></div>
             <LazyRender/>
-            <JSONArrayRenderer/>
+            {/*<JSONArrayRenderer/>*/}
         </div>
     )
 }

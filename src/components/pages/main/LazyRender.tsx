@@ -1,6 +1,7 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useAtomValue} from "jotai/index";
 import {jsonArrayAtom} from "@/components/pages/main/atoms";
+import {JSONDataRenderer} from "@/components/pages/main/JSONDataRenderer";
 
 const arr = new Array(10000).fill(0).map((_, i) => i);
 const amountOfElementsToRender = 20
@@ -20,7 +21,7 @@ function isElementPartiallyInViewport(element: HTMLElement): boolean {
 export const LazyRender = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [renderedIndex, setRenderedIndex] = useState<number>(0);
-    const jsonIds = useAtomValue(jsonArrayAtom)
+    const arr = useAtomValue(jsonArrayAtom)
 
     const arrToRender = useMemo(() => {
         if (renderedIndex > chunksToRender) {
@@ -58,7 +59,7 @@ export const LazyRender = () => {
                 const bg = i % 2 ? "bg-gray-100" : "bg-gray-200";
                 return <div key={i} style={{
                     top: item * 100
-                }} className={`absolute h-[100px] w-[100px] ${bg}`}>{item}</div>
+                }} className={`absolute h-[100px] ${bg}`}><JSONDataRenderer el={item}/></div>
             })}
         </div>
     )

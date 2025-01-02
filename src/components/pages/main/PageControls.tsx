@@ -8,10 +8,10 @@ export function PageControls() {
     const jsonData = useAtomValue(jsonAtom);
     const jsonArray = useAtomValue(jsonArrayAtom);
     const onDownloadJSON = useCallback(() => {
-        jsonData && saveJsonToFile({data: jsonData, ids: jsonArray}, "updatedData.json");
+        jsonData && saveJsonToFile({data: jsonData, ids: jsonArray}, "updatedData");
     }, [jsonArray, jsonData])
 
-    return <div className={"fixed top-0 right-0"}>
+    return <div className={"fixed top-0 right-0 z-20"}>
         <button className={"bg-blue-300 p-4"} onClick={onDownloadJSON}>Download JSON</button>
         <FilePicker/>
     </div>
