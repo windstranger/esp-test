@@ -6,6 +6,7 @@ import {jsonAtom} from "@/components/pages/main/atoms";
 import {JSONData, User} from "@/models/User";
 import {debounce} from "next/dist/server/utils";
 import {FilePicker} from "@/components/pages/main/FilePicker";
+import {LazyRender} from "@/components/pages/main/LazyRender";
 
 export function convertArrayToObject(array: User[]): JSONData {
     const ids: number[] = [];
@@ -81,6 +82,7 @@ export default function Home() {
             </button>
             <FilePicker/>
             <div id={"output"}></div>
+            <LazyRender/>
             {/*<JSONArrayRenderer/>*/}
         </div>
     );
