@@ -12,7 +12,6 @@ export function convertArrayToObject(array: User[], offset=0): JSONData {
     const ids: number[] = [];
     const data: JSONData["data"] = {};
 
-    debugger
     array.forEach((item, index) => {
         const randomId = offset+index // Generate a random ID
         ids.push(randomId);

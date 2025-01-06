@@ -1,7 +1,8 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useAtomValue} from "jotai/index";
 import {jsonArrayAtom} from "@/components/pages/main/atoms";
-import {JSONDataRenderer} from "@/components/pages/main/JSONDataRenderer";
+import {fetcher, JSONDataRenderer} from "@/components/pages/main/JSONDataRenderer";
+import useSWR from "swr";
 
 const arr = new Array(10000).fill(0).map((_, i) => i);
 const amountOfElementsToRender = 20
@@ -65,6 +66,12 @@ export const LazyRender = () => {
         calculateSlice()
     }, [calculateSlice]);
 
+
+    useSWR("/api/user-meta", fetcher, {
+        revalidateIfStale: false,
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false
+    });
 
     return (
         <div id={"scrollable"} ref={scrollableRef} onScroll={onScroll}

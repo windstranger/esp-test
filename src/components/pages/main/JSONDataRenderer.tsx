@@ -4,12 +4,9 @@ import {useAtomValue, useSetAtom} from "jotai/index";
 import {jsonAtom} from "@/components/pages/main/atoms";
 import {selectAtom} from "jotai/utils";
 import {debounce} from "next/dist/server/utils";
-import {User} from "@/models/User";
 import useSWR from 'swr'
 
-type UserMeta = Record<keyof User, string>
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+export const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const dataTypeConverter = (dataType: string, value: any) => {
     let res;
@@ -18,10 +15,8 @@ const dataTypeConverter = (dataType: string, value: any) => {
     }
 
     if (dataType === "boolean") {
-        debugger
         res = value === "on";
     }
-
 
     return res
 }

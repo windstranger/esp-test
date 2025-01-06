@@ -7,6 +7,7 @@ import {convertArrayToObject} from "@/services/arrayObjectConverter";
 type JsonObject = { [key: string]: any };
 
 
+// json parser of chunks of large files
 function extractJsonObjects(buffer: string): { remainingBuffer: string; objects: JsonObject[] } {
     const objects: JsonObject[] = [];
     let remainingBuffer = '';
@@ -37,6 +38,7 @@ function extractJsonObjects(buffer: string): { remainingBuffer: string; objects:
     return {remainingBuffer, objects};
 }
 
+// implementation for really large files
 export async function processLargeJsonFile(file: File, onObjectsRead: (objects: User[]) => void) {
     const reader = file.stream().getReader();
     const decoder = new TextDecoder('utf-8');
@@ -122,17 +124,6 @@ export function FilePicker() {
         update([...objects]);
     }, []);
 
-    // const onObjectsRead = useCallback((objects: User[]) => {
-    //         const res = convertArrayToObject(objects, offset.current);
-    //         offset.current+=objects.length
-    //
-    //         setJSONData(prev => {
-    //             return {...prev, ...res.data}
-    //         })
-    //         setJSONArray(prev => {
-    //             return [...prev, ...res.ids]
-    //         })
-    // }, [])
     const fileProcessor = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
         setIsLoading(true);
         const file = event.target?.files?.[0]; // Get the selected file
@@ -141,12 +132,11 @@ export function FilePicker() {
             return;
         }
         try {
-            // const res = await simpleFileReader(file);
-            // setJSONData(res.data)
-            // setJSONArray(res.ids)
-            await processLargeJsonFile(file, onObjectsRead);
-
-            // console.log(res);
+            //todo: choose which is better to render, for now they renders almost instant
+            const res = await simpleFileReader(file);
+            setJSONData(res.data)
+            setJSONArray(res.ids)
+            // await processLargeJsonFile(file, onObjectsRead);
         } finally {
             setIsLoading(false)
         }
