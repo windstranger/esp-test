@@ -36,5 +36,5 @@ I also used uncontrolled input controls.
 5. to easy manipulate the data between components, and to prevent props drilling, I decided to use Jotai state manager. It`s like recoil, but 
 with less boilerplate, its also from creators of Zustand, and it showed itself pretty well on my last project.
 
-I havent test the solution well, but it should read the data from provided file, modify the data and save it later...
+I havent test the solution well, but it should read the data from provided file, modify the data and save it later on, hopefully without data type conversions =)...
 
