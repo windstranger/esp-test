@@ -1,9 +1,4 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-## Getting Started
-
-First, run the development server:
-
+to start the project:
 ```bash
 npm run dev
 # or
@@ -14,23 +9,32 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+# What were the ideas behind...
+### I was thinking about places which can slowdown user interaction
+here is what I concluded:
+1. because files can be large, and watching loader is not that fun.
+I decided to try reading json file using stream api. So that user could 
+interact with data asap.
+unfortunately, on my pc, file upload was almost instant, even with 100к objects, so I left the code as a playground.
+2. because we are working with large arrays, and we are not just displaying them we need to modify them.
+So, I had to make data modifications so that, changing one object didnt trigger rerenders of all the array. It will need 
+further profiling, tests and measurements, but for test purpose I think, thats enough
+3. I also used technology called "virtual windowing", I used it once on my project. You mentioned that it will be a plus
+to write it by my own. I worked with react-virtualized and with Tanstack Virtual but I havent dive into their source code,
+neither asking chatgpt about their ideas.
+To implement this technology I decided to track last visible element, so that, I can know, when to render next part of data.
+That was working pretty fine, but after some time testing I came up with a bug, that if I scroll too fast, 
+data wasnt rendered fast enough and I was stuck with no data... =)
+so, next attempt was to listen for scroll position and calculate array range based on scroll position, total elements and client view.
+to speed up I also made an assumption that the height of each element is fixed, but in the future it is okay to recalculate 
+total height when new elements render and to cache already rendered heights...
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+4. Because of different types of data in array and the need to edit every field, I decided to create small converter from 
+type to field renderer. I used chatgpt to convert "random json generator" to Typescript Type, then I also used it to create
+an object with types to render it dynamically. I`ve used plain input fields with custom type based on field type.
+I also used uncontrolled input controls.
+5. to easy manipulate the data between components, and to prevent props drilling, I decided to use Jotai state manager. It`s like recoil, but 
+with less boilerplate, its also from creators of Zustand, and it showed itself pretty well on my last project.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+I havent test the solution well, but it should read the data from provided file, modify the data and save it later...
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
