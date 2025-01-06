@@ -1,5 +1,6 @@
 import {JSONData, User} from "@/models/User";
 
+// working with array optimizations
 export function convertObjectToArray(object: JSONData) {
     const ids = object.ids;
     const data: JSONData["data"] = object.data;

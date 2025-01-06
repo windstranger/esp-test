@@ -1,11 +1,7 @@
-import {useSetAtom} from "jotai/index";
-import {jsonArrayAtom, jsonAtom} from "@/components/pages/main/atoms";
-import {ChangeEvent, useCallback, useRef, useState} from "react";
 import {JSONData, User} from "@/models/User";
 import {convertArrayToObject} from "@/services/arrayObjectConverter";
 
-type JsonObject = { [key: string]: any };
-
+type JsonObject = { [key: string]: number | string | boolean };
 
 // json parser of chunks of large files
 function extractJsonObjects(buffer: string): { remainingBuffer: string; objects: JsonObject[] } {
@@ -74,7 +70,7 @@ export async function processLargeJsonFile(file: File, onObjectsRead: (objects: 
     console.log('File processing complete!');
 }
 
-function simpleFileReader(file: File) {
+export function simpleFileReader(file: File) {
     return new Promise<JSONData>((resolve, reject) => {
         const reader = new FileReader(); // Create a FileReader instance
 
@@ -99,52 +95,4 @@ function simpleFileReader(file: File) {
 
         reader.readAsText(file);
     })
-}
-
-export function FilePicker() {
-    const setJSONData = useSetAtom(jsonAtom);
-    const setJSONArray = useSetAtom(jsonArrayAtom);
-    const [isLoading, setIsLoading] = useState<boolean>()
-    const offset = useRef<number>(0)
-    const onObjectsRead = useCallback((objects: User[]) => {
-        const update = (remaining: User[]) => {
-            if (remaining.length === 0) return;
-
-            // const  res = remaining
-            // const chunk = remaining.splice(0, 100); // Process smaller chunks
-            const res = convertArrayToObject(remaining, offset.current);
-            offset.current += remaining.length;
-
-            setJSONData((prev) => ({ ...prev, ...res.data }));
-            setJSONArray((prev) => [...prev, ...res.ids]);
-
-            // requestAnimationFrame(() => update(remaining));
-        };
-
-        update([...objects]);
-    }, []);
-
-    const fileProcessor = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
-        setIsLoading(true);
-        const file = event.target?.files?.[0]; // Get the selected file
-        if (!file) {
-            alert('No file selected!');
-            return;
-        }
-        try {
-            //todo: choose which is better to render, for now they renders almost instant
-            const res = await simpleFileReader(file);
-            setJSONData(res.data)
-            setJSONArray(res.ids)
-            // await processLargeJsonFile(file, onObjectsRead);
-        } finally {
-            setIsLoading(false)
-        }
-
-    }, [setJSONData]);
-
-    return <div>
-        {isLoading && "Loading..."}
-        <input type="file" onChange={fileProcessor} accept={"application/json"}/>
-    </div>
 }
