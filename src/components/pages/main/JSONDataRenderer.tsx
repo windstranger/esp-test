@@ -79,8 +79,8 @@ export const JSONDataRenderer = memo(function JSONDataRenderer({el}: { el: numbe
     const data = useAtomValue(selectedElement);
 
     return <div className={"flex p-4 gap-4"}>
-        {!isMetaLoading && userMeta && Object.keys(userMeta).map(objectKey => {
-            return <div><label>{objectKey}</label><InputBuilder fieldName={objectKey} elId={el}
+        {!isMetaLoading && userMeta && Object.keys(userMeta).map((objectKey)  => {
+            return <div key={objectKey}><label>{objectKey}</label><InputBuilder fieldName={objectKey} elId={el}
                                                                 dataType={userMeta[objectKey]}
                                                                 value={data?.[objectKey]}/></div>
         })}
