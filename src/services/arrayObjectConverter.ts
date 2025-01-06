@@ -8,12 +8,13 @@ export function convertObjectToArray(object: JSONData) {
     });
 }
 
-export function convertArrayToObject(array: User[]): JSONData {
+export function convertArrayToObject(array: User[], offset=0): JSONData {
     const ids: number[] = [];
     const data: JSONData["data"] = {};
 
+    debugger
     array.forEach((item, index) => {
-        const randomId = index // Generate a random ID
+        const randomId = offset+index // Generate a random ID
         ids.push(randomId);
         data[randomId] = item;
     });

@@ -1,12 +1,11 @@
 import {useSetAtom} from "jotai/index";
 import {jsonArrayAtom, jsonAtom} from "@/components/pages/main/atoms";
-import {ChangeEvent, useCallback, useState} from "react";
-import {JSONData} from "@/models/User";
+import {ChangeEvent, useCallback, useRef, useState} from "react";
+import {JSONData, User} from "@/models/User";
 import {convertArrayToObject} from "@/services/arrayObjectConverter";
 
 type JsonObject = { [key: string]: any };
 
-const CHUNK_SIZE = 32 * 1024; // 32kB
 
 function extractJsonObjects(buffer: string): { remainingBuffer: string; objects: JsonObject[] } {
     const objects: JsonObject[] = [];
@@ -38,12 +37,10 @@ function extractJsonObjects(buffer: string): { remainingBuffer: string; objects:
     return {remainingBuffer, objects};
 }
 
-export async function processLargeJsonFile(file: File) {
+export async function processLargeJsonFile(file: File, onObjectsRead: (objects: User[]) => void) {
     const reader = file.stream().getReader();
     const decoder = new TextDecoder('utf-8');
     let buffer = ''; // Buffer for incomplete JSON data
-
-    const outputElement = document.getElementById('output') as HTMLUListElement;
 
     while (true) {
         const {done, value} = await reader.read();
@@ -58,23 +55,15 @@ export async function processLargeJsonFile(file: File) {
         const {remainingBuffer, objects} = extractJsonObjects(buffer);
         buffer = remainingBuffer;
 
-        // Display objects
-        objects.forEach((obj, i) => {
-            const li = document.createElement('li');
-            li.textContent = JSON.stringify(obj, null, 2);
-            outputElement.appendChild(li);
-
-            // debugger
-        });
+        onObjectsRead(objects as User[])
     }
 
     // Handle leftover buffer
     try {
         if (buffer.trim()) {
             const finalObject = JSON.parse(buffer.trim());
-            const li = document.createElement('li');
-            li.textContent = JSON.stringify(finalObject, null, 2);
-            outputElement.appendChild(li);
+
+            onObjectsRead([finalObject])
         }
     } catch {
         console.error('Invalid JSON at the end of the file.');
@@ -114,6 +103,36 @@ export function FilePicker() {
     const setJSONData = useSetAtom(jsonAtom);
     const setJSONArray = useSetAtom(jsonArrayAtom);
     const [isLoading, setIsLoading] = useState<boolean>()
+    const offset = useRef<number>(0)
+    const onObjectsRead = useCallback((objects: User[]) => {
+        const update = (remaining: User[]) => {
+            if (remaining.length === 0) return;
+
+            // const  res = remaining
+            // const chunk = remaining.splice(0, 100); // Process smaller chunks
+            const res = convertArrayToObject(remaining, offset.current);
+            offset.current += remaining.length;
+
+            setJSONData((prev) => ({ ...prev, ...res.data }));
+            setJSONArray((prev) => [...prev, ...res.ids]);
+
+            // requestAnimationFrame(() => update(remaining));
+        };
+
+        update([...objects]);
+    }, []);
+
+    // const onObjectsRead = useCallback((objects: User[]) => {
+    //         const res = convertArrayToObject(objects, offset.current);
+    //         offset.current+=objects.length
+    //
+    //         setJSONData(prev => {
+    //             return {...prev, ...res.data}
+    //         })
+    //         setJSONArray(prev => {
+    //             return [...prev, ...res.ids]
+    //         })
+    // }, [])
     const fileProcessor = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
         setIsLoading(true);
         const file = event.target?.files?.[0]; // Get the selected file
@@ -121,13 +140,14 @@ export function FilePicker() {
             alert('No file selected!');
             return;
         }
-        try{
-            const res = await simpleFileReader(file);
-            setJSONData(res.data)
-            setJSONArray(res.ids)
-            // await processLargeJsonFile(file);
+        try {
+            // const res = await simpleFileReader(file);
+            // setJSONData(res.data)
+            // setJSONArray(res.ids)
+            await processLargeJsonFile(file, onObjectsRead);
+
             // console.log(res);
-        }finally {
+        } finally {
             setIsLoading(false)
         }
 

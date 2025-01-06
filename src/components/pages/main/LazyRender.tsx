@@ -30,6 +30,7 @@ export const LazyRender = () => {
     console.log(endIndex);
 
     const arr = useAtomValue(jsonArrayAtom)
+    console.log("arr length", arr.length);
 
     const arrToRender = useMemo(() => {
         return [...arr.slice(startIndex, endIndex)]

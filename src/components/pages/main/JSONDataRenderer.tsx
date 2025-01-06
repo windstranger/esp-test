@@ -58,31 +58,41 @@ const InputBuilder = ({fieldName, dataType, value, elId}: {
     }, [setJSONData]);
 
     if (dataType === "boolean") {
-        return <input ref={inputRef} className={"bg-gray-100 p-2 border"} type={"checkbox"} defaultChecked={value}/>
+        return <input ref={inputRef as React.Ref<HTMLInputElement>} className={"bg-gray-100 p-2 border"}
+                      type={"checkbox"} defaultChecked={value}/>
     }
 
     if (Array.isArray(dataType)) {
-        return <select ref={inputRef} className={"bg-gray-100 p-2 border"} defaultValue={value}>
+        return <select ref={inputRef as React.Ref<HTMLSelectElement>} className={"bg-gray-100 p-2 border"}
+                       defaultValue={value}>
             {dataType.map(opt => {
                 return <option key={opt} value={opt}>{opt}</option>
             })}
         </select>
     }
 
-    return <input ref={inputRef} className={"bg-gray-100 p-2 border"} defaultValue={value} type={dataType}/>
+    return <input ref={inputRef as React.Ref<HTMLInputElement>} className={"bg-gray-100 p-2 border"}
+                  defaultValue={value} type={dataType}/>
 }
 export const JSONDataRenderer = memo(function JSONDataRenderer({el}: { el: number }) {
-    const {data: userMeta, isLoading: isMetaLoading} = useSWR("/api/user-meta", fetcher);
+    const {data: userMeta, isLoading: isMetaLoading} = useSWR("/api/user-meta", fetcher, {
+        revalidateIfStale: false,
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false
+    });
     const selectedElement = useMemo(() => {
         return selectAtom(jsonAtom, item => item?.[el])
     }, [el]);
     const data = useAtomValue(selectedElement);
 
     return <div className={"flex p-4 gap-4"}>
-        {!isMetaLoading && userMeta && Object.keys(userMeta).map((objectKey)  => {
-            return <div key={objectKey}><label>{objectKey}</label><InputBuilder fieldName={objectKey} elId={el}
-                                                                dataType={userMeta[objectKey]}
-                                                                value={data?.[objectKey]}/></div>
+        {!isMetaLoading && userMeta && Object.keys(userMeta).map((objectKey) => {
+            return <div key={objectKey}>
+                <label>{objectKey}</label>
+                <InputBuilder fieldName={objectKey} elId={el}
+                              dataType={userMeta[objectKey]}
+                              value={data?.[objectKey as keyof typeof data]}/>
+            </div>
         })}
     </div>;
 });
