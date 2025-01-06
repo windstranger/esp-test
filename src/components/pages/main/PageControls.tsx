@@ -11,8 +11,8 @@ export function PageControls() {
         jsonData && saveJsonToFile({data: jsonData, ids: jsonArray}, "updatedData");
     }, [jsonArray, jsonData])
 
-    return <div className={"fixed top-0 right-0 z-20"}>
-        <button className={"bg-blue-300 p-4"} onClick={onDownloadJSON}>Download JSON</button>
+    return <div className={"fixed top-0 left-0 w-full z-20 p-4 bg-amber-200 shadow-xl flex flex-col gap-2"}>
+        <button className={"bg-blue-300 w-full p-4"} onClick={onDownloadJSON}>Download JSON</button>
         <FilePicker/>
     </div>
 }

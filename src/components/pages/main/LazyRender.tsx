@@ -25,7 +25,7 @@ export const LazyRender = () => {
 
     const arrToRender = useMemo(() => {
         if (renderedIndex > chunksToRender) {
-            return [...arr.slice((renderedIndex - 3) * amountOfElementsToRender, renderedIndex * amountOfElementsToRender + amountOfElementsToRender)]
+            return [...arr.slice((renderedIndex - chunksToRender) * amountOfElementsToRender, renderedIndex * amountOfElementsToRender + amountOfElementsToRender)]
         }
         return [...arr.slice(0, renderedIndex * amountOfElementsToRender + amountOfElementsToRender)]
     }, [arr, renderedIndex])
@@ -54,12 +54,12 @@ export const LazyRender = () => {
     }, [onScroll]);
 
     return (
-        <div ref={containerRef} style={{height: arr.length * 100}} className="relative">
+        <div ref={containerRef} style={{height: arr.length * 100}} className="relative flex">
             {arrToRender.map((item, i) => {
                 const bg = i % 2 ? "bg-gray-100" : "bg-gray-200";
                 return <div key={i} style={{
                     top: item * 100
-                }} className={`absolute h-[100px] ${bg}`}><JSONDataRenderer el={item}/></div>
+                }} className={`absolute h-[100px] w-auto ${bg}`}><JSONDataRenderer el={item}/></div>
             })}
         </div>
     )
