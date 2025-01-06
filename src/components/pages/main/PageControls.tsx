@@ -2,7 +2,7 @@ import {useAtomValue} from "jotai/index";
 import {jsonArrayAtom, jsonAtom} from "@/components/pages/main/atoms";
 import {useCallback} from "react";
 import {saveJsonToFile} from "@/services/fileDownloader";
-import {FilePicker} from "@/components/FilePicker/FilePicker";
+import {FilePicker} from "@/components/pages/main/private/FilePicker/FilePicker";
 
 export function FileUploadDownloadControls() {
     const jsonData = useAtomValue(jsonAtom);

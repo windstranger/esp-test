@@ -1,7 +1,7 @@
 import {useSetAtom} from "jotai/index";
 import {fileReadAtom, jsonArrayAtom, jsonAtom} from "@/components/pages/main/atoms";
 import {ChangeEvent, useCallback, useState} from "react";
-import {simpleFileReader} from "@/components/FilePicker/fileService";
+import {simpleFileReader} from "@/components/pages/main/private/FilePicker/fileService";
 
 export function FilePicker() {
     const setJSONData = useSetAtom(jsonAtom);

@@ -2,7 +2,6 @@
 
 import {Project} from "ts-morph";
 import path from "path";
-import {cache} from "react";
 
 //having fun with generating metadata
 export const generateMeta = async  () => {
