@@ -1,12 +1,16 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useAtomValue} from "jotai/index";
-import {jsonArrayAtom} from "@/components/pages/main/atoms";
-import {JSONDataRenderer} from "@/components/pages/main/JSONDataRenderer";
+import {fileReadAtom, jsonArrayAtom} from "@/components/pages/main/atoms";
+import {fetcher, JSONDataRenderer} from "@/components/pages/main/JSONDataRenderer";
+import useSWR from "swr";
 
 const oneElementHeight = 100
 const elementsToPrerenderOffScreen = 5
 
 export const LazyRender = () => {
+
+    const fileReadKey = useAtomValue(fileReadAtom)
+
     const containerRef = useRef<HTMLDivElement>(null);
     const scrollableRef = useRef<HTMLDivElement>(null);
 
@@ -14,7 +18,6 @@ export const LazyRender = () => {
     const [endIndex, setEndIndex] = useState<number>(0)
 
     const arr = useAtomValue(jsonArrayAtom)
-    console.log("arr length", arr.length);
 
     const arrToRender = useMemo(() => {
         return [...arr.slice(startIndex, endIndex)]
@@ -45,11 +48,16 @@ export const LazyRender = () => {
         calculateSlice()
     }, [calculateSlice]);
 
+    useSWR("/api/user-meta", fetcher, {
+        revalidateIfStale: false,
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false
+    });
 
     return (
-        <div id={"scrollable"} ref={scrollableRef} onScroll={onScroll}
+        <div key={fileReadKey} ref={scrollableRef} onScroll={onScroll}
              className={"relative h-full overflow-auto"}>
-            <div ref={containerRef} id={"container"} style={{height: arr.length * oneElementHeight}}
+            <div ref={containerRef} style={{height: arr.length * oneElementHeight}}
                  className="absolute flex">
                 {arrToRender.map((item, i) => {
                     const bg = i % 2 ? "bg-gray-100" : "bg-gray-200";
