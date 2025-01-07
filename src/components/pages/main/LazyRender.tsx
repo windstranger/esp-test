@@ -2,8 +2,7 @@ import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useAtomValue} from "jotai/index";
 import {fileReadAtom, jsonArrayAtom} from "@/components/pages/main/atoms";
 import {JSONDataRenderer} from "@/components/pages/main/JSONDataRenderer";
-import useSWR from "swr";
-import {fetcher} from "@/services/apiService";
+import {useUserMeta} from "@/services/apiHooks/useUserMeta";
 
 const oneElementHeight = 100
 const elementsToPrerenderOffScreen = 5
@@ -20,11 +19,11 @@ export const LazyRender = () => {
     const [startIndex, setStartIndex] = useState<number>(0)
     const [endIndex, setEndIndex] = useState<number>(0)
 
-    const arr = useAtomValue(jsonArrayAtom)
+    const jsonIdsArray = useAtomValue(jsonArrayAtom)
 
-    const arrToRender = useMemo(() => {
-        return [...arr.slice(startIndex, endIndex)]
-    }, [arr, startIndex, endIndex])
+    const jsonIdsToRender = useMemo(() => {
+        return [...jsonIdsArray.slice(startIndex, endIndex)]
+    }, [jsonIdsArray, startIndex, endIndex])
 
 
     const calculateSlice = useCallback(() => {
@@ -35,13 +34,13 @@ export const LazyRender = () => {
         // check at which element we are located
         const scrollElementIndex = scrollTop / oneElementHeight;
 
-        if (arr.length) {
+        if (jsonIdsArray.length) {
             //calculate start and end indexes
             const scrollEndIndex = Math.ceil(scrollElementIndex + calculatedAmountOfElementsToRender + elementsToPrerenderOffScreen);
             setStartIndex(scrollElementIndex > elementsToPrerenderOffScreen ? Math.floor(scrollElementIndex - elementsToPrerenderOffScreen) : scrollElementIndex)
-            setEndIndex(arr.length < scrollEndIndex ? arr.length : scrollEndIndex)
+            setEndIndex(jsonIdsArray.length < scrollEndIndex ? jsonIdsArray.length : scrollEndIndex)
         }
-    }, [setStartIndex, setEndIndex, arr.length])
+    }, [setStartIndex, setEndIndex, jsonIdsArray.length])
 
     useEffect(() => {
         calculateSlice()
@@ -51,24 +50,21 @@ export const LazyRender = () => {
         calculateSlice()
     }, [calculateSlice]);
 
-    useSWR("/api/user-meta", fetcher, {
-        revalidateIfStale: false,
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false
-    });
+    //prefetch metadata
+    useUserMeta()
 
     return (
         <div key={fileReadKey} ref={scrollableRef} onScroll={onScroll}
              className={"relative h-full overflow-auto"}>
-            <div ref={containerRef} style={{height: arr.length * oneElementHeight}}
+            <div ref={containerRef} style={{height: jsonIdsArray.length * oneElementHeight}}
                  className="absolute flex">
-                {arrToRender.map((item, i) => {
+                {jsonIdsToRender.map((objectId, i) => {
                     const bg = i % 2 ? "bg-gray-100" : "bg-gray-200";
-                    return <div key={item} style={{
-                        top: item * oneElementHeight,
+                    return <div key={objectId} style={{
+                        top: objectId * oneElementHeight,
                         height: oneElementHeight
                     }} className={`absolute  w-auto ${bg}`}>
-                        <JSONDataRenderer el={item}/>
+                        <JSONDataRenderer objectId={objectId}/>
                     </div>
                 })}
             </div>

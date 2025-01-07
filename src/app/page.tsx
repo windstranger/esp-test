@@ -1,3 +1,3 @@
 'use client'
 
-export {MainPage as default} from "@/components/pages/main/MainPage";
+export {MainPage as default} from "@/components/pages/main";

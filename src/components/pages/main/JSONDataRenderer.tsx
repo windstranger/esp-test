@@ -1,33 +1,29 @@
-'use client'
-import {memo, useMemo} from "react";
+import {useMemo} from "react";
 import {useAtomValue} from "jotai/index";
 import {jsonAtom} from "@/components/pages/main/atoms";
 import {selectAtom} from "jotai/utils";
-import useSWR from 'swr'
-import {fetcher} from "@/services/apiService";
 import {InputBuilder} from "@/components/pages/main/InputBuilder";
+import {useUserMeta} from "@/services/apiHooks/useUserMeta";
 
-export const JSONDataRenderer = memo(function JSONDataRenderer({el}: { el: number }) {
-    const {data: userMeta, isLoading: isMetaLoading} = useSWR("/api/user-meta", fetcher, {
-        revalidateIfStale: false,
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false
-    });
-    const selectedElement = useMemo(() => {
-        return selectAtom(jsonAtom, item => item?.[el])
-    }, [el]);
+export const JSONDataRenderer = function JSONDataRenderer({objectId}: { objectId: number }) {
+    const {data: userMeta, isLoading: isMetaLoading} = useUserMeta();
 
-    const data = useAtomValue(selectedElement);
+    const jsonObjectAtom = useMemo(() => {
+        return selectAtom(jsonAtom, item => item?.[objectId])
+    }, [objectId]);
+
+    const jsonObject = useAtomValue(jsonObjectAtom);
 
     return <div className={"flex p-4 gap-4"}>
+        {isMetaLoading && "Loading..."}
         {!isMetaLoading && userMeta && Object.keys(userMeta).map((objectKey) => {
             return <div key={objectKey}>
                 <label>{objectKey}</label>
                 <InputBuilder fieldName={objectKey}
-                              elId={el}
+                              elId={objectId}
                               dataType={userMeta[objectKey]}
-                              value={data?.[objectKey as keyof typeof data]}/>
+                              value={jsonObject?.[objectKey as keyof typeof jsonObject]}/>
             </div>
         })}
     </div>;
-});
+};

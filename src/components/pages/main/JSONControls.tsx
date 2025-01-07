@@ -4,7 +4,7 @@ import {useCallback} from "react";
 import {saveJsonToFile} from "@/services/fileDownloader";
 import {FilePicker} from "@/components/pages/main/private/FilePicker/FilePicker";
 
-export function FileUploadDownloadControls() {
+export function JSONControls() {
     const jsonData = useAtomValue(jsonAtom);
     const jsonArray = useAtomValue(jsonArrayAtom);
     const onDownloadJSON = useCallback(() => {
