@@ -1,14 +1,17 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useAtomValue} from "jotai/index";
 import {fileReadAtom, jsonArrayAtom} from "@/components/pages/main/atoms";
-import {fetcher, JSONDataRenderer} from "@/components/pages/main/JSONDataRenderer";
+import {JSONDataRenderer} from "@/components/pages/main/JSONDataRenderer";
 import useSWR from "swr";
+import {fetcher} from "@/services/apiService";
 
 const oneElementHeight = 100
 const elementsToPrerenderOffScreen = 5
 
 export const LazyRender = () => {
-
+    //because of using indexes as keys when rendering array, I need to reset data. and I was lazy, to rewrite logic,
+    // so I just reset the key on file change... =)
+    //precache data needed to render edit form
     const fileReadKey = useAtomValue(fileReadAtom)
 
     const containerRef = useRef<HTMLDivElement>(null);
