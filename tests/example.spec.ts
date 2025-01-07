@@ -4,8 +4,6 @@ import {writeFileSync} from "node:fs";
 
 import {chromium} from "playwright";
 
-import v8toIstanbul from "v8-to-istanbul";
-
 test('green scenario, can upload, edit and download', async () => {
   const browser = await chromium.launch();
   const page = await browser.newPage();
