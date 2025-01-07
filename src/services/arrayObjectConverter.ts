@@ -1,24 +1,23 @@
-import {JSONData, User} from "@/models/User";
+import { JSONData, User } from '@/models/User';
 
 // working with array optimizations
 export function convertObjectToArray(object: JSONData) {
-    const ids = object.ids;
-    const data: JSONData["data"] = object.data;
-    return ids?.map((item) => {
-        return data?.[item];
-    });
+  const ids = object.ids;
+  const data: JSONData['data'] = object.data;
+  return ids?.map((item) => {
+    return data?.[item];
+  });
 }
 
-export function convertArrayToObject(array: User[], offset=0): JSONData {
-    const ids: number[] = [];
-    const data: JSONData["data"] = {};
+export function convertArrayToObject(array: User[], offset = 0): JSONData {
+  const ids: number[] = [];
+  const data: JSONData['data'] = {};
 
-    array.forEach((item, index) => {
-        const randomId = offset+index // Generate a random ID
-        ids.push(randomId);
-        data[randomId] = item;
-    });
+  array.forEach((item, index) => {
+    const randomId = offset + index; // Generate a random ID
+    ids.push(randomId);
+    data[randomId] = item;
+  });
 
-    return {ids, data};
+  return { ids, data };
 }
-

@@ -1,12 +1,12 @@
 export const dataTypeConverter = (dataType: string, value: boolean | number | string) => {
-    let res;
-    if (dataType === "number") {
-        res = Number(value);
-    }
+  let res;
+  if (dataType === 'number') {
+    res = Number(value);
+  }
 
-    if (dataType === "boolean") {
-        res = value === "on";
-    }
+  if (dataType === 'boolean') {
+    res = value === 'on';
+  }
 
-    return res
-}
+  return res;
+};
