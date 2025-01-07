@@ -1,4 +1,4 @@
-import { JSONData, User } from '@/models/User';
+import { JSONData } from '@/models/User';
 import { convertObjectToArray } from '@/services/arrayObjectConverter';
 
 export function saveJsonToFile(data: JSONData, filename: string): void {
